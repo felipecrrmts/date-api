@@ -10,6 +10,7 @@ help: ## Help
 .PHONY: test
 test: ## Run Tests into the packages
 	@echo "Running tests"
+	go mod tidy
 	go test -v -covermode=atomic -coverpkg=./... ./...
 
 .PHONY: run
