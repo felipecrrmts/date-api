@@ -1,0 +1,40 @@
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+
+  mongodb:
+    image: bitnami/mongodb:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: root-db
+    volumes:
+      - mongodb_data:/bitnami/mongodb
+      - ./createIndex.js:/docker-entrypoint-initdb.d/createIndex.js:ro
+    networks:
+      - app-tier
+
+  date-app:
+    build: .
+    ports:
+      - "80:8080"
+    environment:
+      PORT: "8080"
+      SECRET: "super_amazing_secret_that_no_one_can_know"
+      MONGODB_URI: "mongodb://mongodb:27017"
+      MONGODB_DATABASE: "date"
+    networks:
+      - app-tier
+    depends_on:
+      mongodb:
+        condition: service_started
+
+volumes:
+  mongodb_data:
+    driver: local
